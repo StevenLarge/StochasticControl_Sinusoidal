@@ -3,7 +3,7 @@
 #Steven Large
 #JApril 5th 2018
 
-PRODUCT = StochControl.exe
+PRODUCT = StochControl_A8.exe
 
 ODIR = obj
 LDIR = lib

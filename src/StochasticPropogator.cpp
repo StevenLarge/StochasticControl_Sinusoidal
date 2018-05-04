@@ -31,7 +31,7 @@ double ViscoFric = -log(DampingVal)/dt;
 
 /* Global variables for Sinusoidal potential parameters */
 
-double A = 4.0;
+double A = 8.0;
 
 
 double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int InnerIterations, double VelVar, double MeanVel, double * OptVel, double * CPVals, int PeriodLength){
@@ -71,7 +71,7 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 
 		RandVel = abs(VelVar*d(gen) + MeanVel);
 
-		ProtocolName = "WorkData/OptimalProtocol_A4_" + std::to_string(int(ProtDuration)) + "_" + std::to_string(int(k)) + ".dat";
+		//ProtocolName = "WorkData/OptimalProtocol_A4_" + std::to_string(int(ProtDuration)) + "_" + std::to_string(int(k)) + ".dat";
 
 		Distance = RandVel*ProtDuration;
 		ImageNumber = int(Distance)/int(MeanDistance);
@@ -119,9 +119,9 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 			OptVel_Realization[p] = OptVel_Realization[p]/Normalization;
 		}
 
-		WriteRandomProtocol(ProtocolName,OptVel_Realization,CPVals_Realization,ProtocolLength);
+		//WriteRandomProtocol(ProtocolName,OptVel_Realization,CPVals_Realization,ProtocolLength);
 
-		/*
+		
 		for(int j = 0 ; j < InnerIterations ; j++){
 
 			time = 0;
@@ -141,12 +141,12 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 				WorkAcc += Langevin(timePointer,positionPointer,velocityPointer,CPPointer,OptVel_Realization,CPVals_Realization,ProtocolLength);
 			}
 
-		}*/
+		}
 
 		WorkAcc = WorkAcc/double(InnerIterations);
 
-		//delete OptVel_Realization;
-		//delete CPVals_Realization;
+		delete OptVel_Realization;
+		delete CPVals_Realization;
 
 	}
 
@@ -164,6 +164,7 @@ int FindTargetIndex(double CP, double * CPVals, int ArrayLength){
 		TestDiff = abs(CP - CPVals[k]);
 		if(TestDiff < MINVAL){
 			Target = k;
+			MINVAL = TestDiff;
 		}
 	}
 

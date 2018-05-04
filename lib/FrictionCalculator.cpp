@@ -15,7 +15,7 @@ double DampingVal_2 = 0.25;
 double dt_2 = 0.1;
 double beta_2 = 1.0;
 double TrapStrength_2 = 4.0;
-double A_2 = 4.0;
+double A_2 = 8.0;
 
 void ZulkowskiFriction(double * OptVel, double * CPVals, double * Friction, double dX, int PeriodLength){
 
