@@ -16,8 +16,8 @@ using namespace std;
 
 int main(){
 
-	string WriteName = "WorkData/WorkTrend_k4_A8.dat";
-	string WriteNameFriction = "WorkData/Friction_k4_A8.dat";
+	string WriteName = "WorkData/WorkTrend.dat";
+	string WriteNameFriction = "WorkData/Friction.dat";
 
 	double dX = 0.01;
 	int PeriodLength = int(2.0*3.14159/dX);
@@ -29,16 +29,26 @@ int main(){
 	CPVals = new double [PeriodLength];
 	Friction = new double [PeriodLength];
 
-	int OuterIterations = 10000;
+	int OuterIterations = 5000;
 	int InnerIterations = 1;
-	double VelVar = 1;
-	double ProtocolDuration [] = {1,2,4,8,16,32,64,128,256,512};//,1024};//,2048};
+	//double VelVar = 1;
+	double VelVar;
+	double * VelVarPtr = &VelVar;
+	ReadVelocityVariance(VelVarPtr);
+
+	cout << "Velocity Variance --> " << std::to_string(VelVar) << "\n";
+
+	double ProtocolDuration [] = {0.25,0.5,1,2,4,8,16,32,64,128,256,512};//,1024};//,2048};
 	//double ProtocolDuration [] = {1,4,16};
-	int NumDurations = 10;//11;//12;
+	int NumDurations = 12;//11;//12;
 	//int NumDurations = 3;
 
 	double MeanVel;
-	double CPDist = 2*3.14159;
+
+	double CPDist;
+	double * CPDistPtr = &CPDist;	
+	//double CPDist = 2*3.14159;
+	ReadCPDist(CPDistPtr);
 
 	double * WorkArray;
 	WorkArray = new double [NumDurations];

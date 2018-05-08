@@ -14,6 +14,66 @@
 using namespace std;
 
 
+void ReadParameters(double * dt, double * mass, double * DampingVal, double * beta, double * TrapStrength, double * A, double * CPDist){
+
+	std::ifstream ReadFile;
+
+	ReadFile.open("Parameters.dat");
+
+	ReadFile >> *DampingVal;
+	ReadFile >> *dt;
+	ReadFile >> *beta;
+	ReadFile >> *TrapStrength;
+	ReadFile >> *mass;
+	ReadFile >> *A;
+	ReadFile >> *CPDist;
+
+	ReadFile.close();
+
+}
+
+void ReadVelocityVariance(double * VelVar){
+
+	std::ifstream ReadFile;
+
+	ReadFile.open("Parameters.dat");
+
+	double Dummy;
+
+	ReadFile >> Dummy;
+	ReadFile >> Dummy;
+	ReadFile >> Dummy;
+	ReadFile >> Dummy;
+	ReadFile >> Dummy;
+	ReadFile >> Dummy;
+	ReadFile >> Dummy;
+	ReadFile >> *VelVar;
+
+	ReadFile.close();
+
+}
+
+
+void ReadCPDist(double * CPDist){
+
+	std::ifstream ReadFile;
+
+	double Dummy;
+
+	ReadFile.open("Parameters.dat");
+
+	ReadFile >> Dummy;
+	ReadFile >> Dummy;
+	ReadFile >> Dummy;
+	ReadFile >> Dummy;
+	ReadFile >> Dummy;
+	ReadFile >> Dummy;
+
+	ReadFile >> *CPDist;
+
+}
+
+
 void WriteWorkData(string WriteName, double * ProtocolDuration, double * WorkVals, int NumberDurations){
 
 	std::ofstream WriteFile;

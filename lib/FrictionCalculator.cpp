@@ -1,6 +1,7 @@
 /* This is a C++ driver code to calculate the generalized friction for one period of a sinusoidal landscape, confined by a harmonic trap */
 
 #include "include/FrictionCalculator.h"
+#include "include/ReadWrite.h"
 
 #include <fstream>
 #include <iostream>
@@ -11,22 +12,40 @@
 
 using namespace std;
 
-double DampingVal_2 = 0.25;
-double dt_2 = 0.1;
-double beta_2 = 1.0;
-double TrapStrength_2 = 4.0;
-double A_2 = 8.0;
-
 void ZulkowskiFriction(double * OptVel, double * CPVals, double * Friction, double dX, int PeriodLength){
 
-	//double DampingVal = 0.25;
-	//double dt = 0.1;
+	double DampingVal;
+	double dt;
+	double beta;
+	double TrapStrength;
+	double A;
+	double mass;
+	double CPDist;
+
+	double * DampingValPtr = &DampingVal;
+	double * dtPtr = &dt;
+	double * betaPtr = &beta;
+	double * TrapStrengthPtr = &TrapStrength;
+	double * APtr = &A;
+	double * massPtr = &mass;
+	double * CPDistPtr = &CPDist;
+
+	ReadParameters(dtPtr, massPtr, DampingValPtr, betaPtr, TrapStrengthPtr, APtr, CPDistPtr);
+
+	//cout << "Parameters:\n";
+	//cout << "DampingVal ---> " << std::to_string(DampingVal) << "\n"; 	
+	//cout << "dt ---> " << std::to_string(dt) << "\n"; 
+	//cout << "beta ---> " << std::to_string(beta) << "\n"; 
+	//cout << "TrapStrength ---> " << std::to_string(TrapStrength) << "\n"; 
+	//cout << "A ---> " << std::to_string(A) << "\n"; 
+	//cout << "mass ---> " << std::to_string(mass) << "\n"; 
+	//cout << "CPDist ---> " << std::to_string(CPDist) << "\n";
 
 	double CPCounter = 0.0;
 	double TimeAcc = 0.0;
 	double Normalization;
 
-	double ViscoFric = -log(DampingVal_2)/dt_2;
+	double ViscoFric = -log(DampingVal)/dt;
 
 	int Window = 10;
 	double HalfWindow = double(Window)*0.5;
@@ -41,7 +60,7 @@ void ZulkowskiFriction(double * OptVel, double * CPVals, double * Friction, doub
 
 	for(int k = 0 ; k < PeriodLength ; k++){
 		XMin = CPVals[k] - HalfWindow;
-		Friction[k] = ViscoFric*GeneralizedFriction(CPVals[k],Range,XMin,dX);
+		Friction[k] = ViscoFric*GeneralizedFriction(CPVals[k],Range,XMin,dX,TrapStrength,A,beta);
 		OptVel[k] = (double(1))/sqrt(Friction[k]);
 	}
 
@@ -56,7 +75,7 @@ void ZulkowskiFriction(double * OptVel, double * CPVals, double * Friction, doub
 	}
 }
 
-double GeneralizedFriction(double CPVal, int Range, double XMin, double dX){
+double GeneralizedFriction(double CPVal, int Range, double XMin, double dX, double TrapStrength, double A, double beta){
 
 	double FrictionAcc = 0.0;
 
@@ -76,19 +95,19 @@ double GeneralizedFriction(double CPVal, int Range, double XMin, double dX){
 	double NormFactor = 0;
 
 	for(int k = 0 ; k < Range ; k++){
-		Prob = exp(-beta_2*Energy(CurrX,CPVal));
+		Prob = exp(-beta*Energy(CurrX,CPVal,TrapStrength,A));
 		NormFactor += Prob*dX;
 		EqDist[k] = Prob;
 		if(k!=0){
-			Prob = exp(-beta_2*Energy(CurrX,CPVal-dX));
+			Prob = exp(-beta*Energy(CurrX,CPVal-dX,TrapStrength,A));
 			Cumul_Rev[k] = Cumul_Rev[k-1] + Prob*dX;
-			Prob = exp(-beta_2*Energy(CurrX,CPVal+dX));
+			Prob = exp(-beta*Energy(CurrX,CPVal+dX,TrapStrength,A));
 			Cumul_Fw[k] = Cumul_Fw[k-1] + Prob*dX;
 		}
 		else{
-			Prob = exp(-beta_2*Energy(CurrX,CPVal-dX));
+			Prob = exp(-beta*Energy(CurrX,CPVal-dX,TrapStrength,A));
 			Cumul_Rev[k] = Prob*dX;
-			Prob = exp(-beta_2*Energy(CurrX,CPVal+dX));
+			Prob = exp(-beta*Energy(CurrX,CPVal+dX,TrapStrength,A));
 			Cumul_Fw[k] = Prob*dX;
 		}
 		CurrX += dX;
@@ -108,14 +127,20 @@ double GeneralizedFriction(double CPVal, int Range, double XMin, double dX){
 		FrictionAcc += (Cumul_Deriv[k]*Cumul_Deriv[k]/EqDist[k])*dX;
 	}
 
+	delete EqDist;
+	delete XVals;
+	delete Cumul_Fw;
+	delete Cumul_Rev;
+	delete Cumul_Deriv;
+
 	return FrictionAcc;
 }
 
 
-double Energy(double position, double CP){
+double Energy(double position, double CP, double TrapStrength, double A){
 
 	double Energy;
-	Energy = 0.5*TrapStrength_2*(position - CP)*(position - CP) -A_2*cos(position);
+	Energy = 0.5*TrapStrength*(position - CP)*(position - CP) -A*cos(position);
 
 	return Energy;
 }

@@ -20,29 +20,33 @@ std::mt19937 gen(rd());
 std::normal_distribution<> d(0,1);
 double GaussRandom;
 
-/* Global variable declarations for Langevin integrator parameters */
-
-double TrapStrength = 4.0;
-double DampingVal = 0.25;
-double beta = 1.0;
-double dt = 0.1;
-double mass = 1.0;
-double ViscoFric = -log(DampingVal)/dt;
-
-/* Global variables for Sinusoidal potential parameters */
-
-double A = 8.0;
-
 
 double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int InnerIterations, double VelVar, double MeanVel, double * OptVel, double * CPVals, int PeriodLength){
 
-	//std::random_device rd2;
-	//std::mt19937 gen(rd2());
-	//std::normal_distribution<> d2(MeanVel,VelVar);
+	double TrapStrength;
+	double DampingVal;
+	double beta;
+	double dt;
+	double mass;
+	double A;
+	double CPDist;
+
+	double * TrapStrengthPtr = &TrapStrength;
+	double * DampingValPtr = &DampingVal;
+	double * betaPtr = &beta;
+	double * dtPtr = &dt;
+	double * massPtr = &mass;
+	double * APtr = &A;
+	double * CPDistPtr = &CPDist;
+
+	ReadParameters(dtPtr, massPtr, DampingValPtr, betaPtr, TrapStrengthPtr, APtr, CPDistPtr);
+
+	double ViscoFric = -log(DampingVal)/dt;
+
 	double RandVel;
 
 	double WorkAcc = 0.0;
-	double Equilibration = 100;
+	double Equilibration = 500;
 
 	double time;
 	double position;
@@ -69,17 +73,13 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 
 	for(int k = 0 ; k < OuterIterations ; k++){
 
-		RandVel = abs(VelVar*d(gen) + MeanVel);
-
-		//ProtocolName = "WorkData/OptimalProtocol_A4_" + std::to_string(int(ProtDuration)) + "_" + std::to_string(int(k)) + ".dat";
+		RandVel = abs(sqrt(VelVar)*d(gen) + MeanVel);
 
 		Distance = RandVel*ProtDuration;
-		ImageNumber = int(Distance)/int(MeanDistance);
-		CompleteImage = fmod(Distance,MeanDistance);
-
-		//cout << "Distance --> " << std::to_string(Distance) << "\n";
-		//cout << "ImageNumber --> " << std::to_string(ImageNumber) << "\n";
-		//cout << "CompleteImage --> " << std::to_string(CompleteImage) << "\n";
+		//ImageNumber = int(Distance/MeanDistance);
+		ImageNumber = int(Distance/(2*3.14159));
+		//CompleteImage = fmod(Distance,MeanDistance);
+		CompleteImage = fmod(Distance,(2*3.14159));
 
 		MINVAL = 9999;
 		
@@ -119,6 +119,8 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 			OptVel_Realization[p] = OptVel_Realization[p]/Normalization;
 		}
 
+		//ProtocolName = "Protocols/Protocol_T" + std::to_string(ProtDuration) + "_" + std::to_string(k) + "_CP314.dat";
+
 		//WriteRandomProtocol(ProtocolName,OptVel_Realization,CPVals_Realization,ProtocolLength);
 
 		
@@ -131,14 +133,14 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 
 			while(time < Equilibration){
 				//ConstantLangevinEquil(timePointer,positionPointer,velocityPointer,CPPointer,RandVel);
-				LangevinEquil(timePointer,positionPointer,velocityPointer,CPPointer,OptVel_Realization,CPVals_Realization);
+				LangevinEquil(timePointer,positionPointer,velocityPointer,CPPointer,OptVel_Realization,CPVals_Realization,dt,A,beta,DampingVal,mass,TrapStrength);
 			}
 
 			time = 0;
 
 			while(time < ProtDuration){
 				//WorkAcc += ConstantLangevin(timePointer,positionPointer,velocityPointer,CPPointer,RandVel);
-				WorkAcc += Langevin(timePointer,positionPointer,velocityPointer,CPPointer,OptVel_Realization,CPVals_Realization,ProtocolLength);
+				WorkAcc += Langevin(timePointer,positionPointer,velocityPointer,CPPointer,OptVel_Realization,CPVals_Realization,ProtocolLength,dt,A,beta,DampingVal,mass,TrapStrength);
 			}
 
 		}
@@ -171,35 +173,35 @@ int FindTargetIndex(double CP, double * CPVals, int ArrayLength){
 	return Target;
 }
 
-double Langevin(double * time, double * position, double * velocity, double * CP, double * OptVel_Realization, double * CPVals_Realization, int ArrayLength){
+double Langevin(double * time, double * position, double * velocity, double * CP, double * OptVel_Realization, double * CPVals_Realization, int ArrayLength, double dt, double A, double beta, double DampingVal, double mass, double TrapStrength){
 
 	GaussRandom = d(gen);
 
 	*velocity = sqrt(DampingVal)*(*velocity) + sqrt((1-DampingVal)/(beta*mass))*GaussRandom;
-	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP)/mass;
+	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP,TrapStrength,A)/mass;
 	*position = *position + 0.5*dt*(*velocity);
 
 	*time += dt;
 	double NewCP = *CP + OptVel_Realization[FindTargetIndex(*CP,CPVals_Realization,ArrayLength)]*dt;
-	double WorkStep = CalcWork(*position,*CP,NewCP);
+	double WorkStep = CalcWork(*position,*CP,NewCP,TrapStrength,A);
 
 	*CP = NewCP;
 
 	GaussRandom = d(gen);
 
 	*position = *position + 0.5*dt*(*velocity);
-	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP)/mass;
+	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP,TrapStrength,A)/mass;
 	*velocity = sqrt(DampingVal)*(*velocity) + sqrt((1-DampingVal)/(beta*mass))*GaussRandom;
 
 	return WorkStep;
 }
 
-void LangevinEquil(double * time, double * position, double * velocity, double * CP, double * OptVel_Realization, double * CPVals_Realization){
+void LangevinEquil(double * time, double * position, double * velocity, double * CP, double * OptVel_Realization, double * CPVals_Realization, double dt, double A, double beta, double DampingVal, double mass, double TrapStrength){
 
 	GaussRandom = d(gen);
 
 	*velocity = sqrt(DampingVal)*(*velocity) + sqrt((1-DampingVal)/(beta*mass))*GaussRandom;
-	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP)/mass;
+	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP,TrapStrength,A)/mass;
 	*position = *position + 0.5*dt*(*velocity);
 
 	*time += dt;
@@ -210,7 +212,7 @@ void LangevinEquil(double * time, double * position, double * velocity, double *
 	GaussRandom = d(gen);
 
 	*position = *position + 0.5*dt*(*velocity);
-	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP)/mass;
+	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP,TrapStrength,A)/mass;
 	*velocity = sqrt(DampingVal)*(*velocity) + sqrt((1-DampingVal)/(beta*mass))*GaussRandom;
 
 	*CP = OldCP;
@@ -219,7 +221,7 @@ void LangevinEquil(double * time, double * position, double * velocity, double *
 
 
 
-/* Constane velocity protocol propogation routines */
+/* Constant velocity protocol propogation routines */
 
 
 double ConstantDriver(double ProtDuration,int OuterIterations,int InnerIterations,double MeanVel,double VelVar){
@@ -231,6 +233,26 @@ double ConstantDriver(double ProtDuration,int OuterIterations,int InnerIteration
 
 	double WorkAcc = 0.0;
 	double Equilibration = 100;
+
+	double TrapStrength;
+	double DampingVal;
+	double beta;
+	double dt;
+	double mass;
+	double A;
+	double CPDist;
+
+	double * TrapStrengthPtr = &TrapStrength;
+	double * DampingValPtr = &DampingVal;
+	double * betaPtr = &beta;
+	double * dtPtr = &dt;
+	double * massPtr = &mass;
+	double * APtr = &A;
+	double * CPDistPtr = &CPDist;
+
+	ReadParameters(dtPtr, massPtr, DampingValPtr, betaPtr, TrapStrengthPtr, APtr, CPDistPtr);
+
+	double ViscoFric = -log(DampingVal)/dt;
 
 	double time;
 	double position;
@@ -254,13 +276,13 @@ double ConstantDriver(double ProtDuration,int OuterIterations,int InnerIteration
 			CP = 0;
 
 			while(time < Equilibration){
-				ConstantLangevinEquil(timePointer,positionPointer,velocityPointer,CPPointer,RandVel);
+				ConstantLangevinEquil(timePointer,positionPointer,velocityPointer,CPPointer,RandVel,dt,mass,beta,DampingVal,TrapStrength,A);
 			}
 
 			time = 0;
 
 			while(time < ProtDuration){
-				WorkAcc += ConstantLangevin(timePointer,positionPointer,velocityPointer,CPPointer,RandVel);
+				WorkAcc += ConstantLangevin(timePointer,positionPointer,velocityPointer,CPPointer,RandVel,dt,mass,beta,DampingVal,TrapStrength,A);
 			}
 
 		}
@@ -274,35 +296,35 @@ double ConstantDriver(double ProtDuration,int OuterIterations,int InnerIteration
 
 
 
-double ConstantLangevin(double * time, double * position, double * velocity, double * CP, double RandVel){
+double ConstantLangevin(double * time, double * position, double * velocity, double * CP, double RandVel, double dt, double mass, double beta, double DampingVal, double TrapStrength, double A){
 
 	GaussRandom = d(gen);
 
 	*velocity = sqrt(DampingVal)*(*velocity) + sqrt((1-DampingVal)/(beta*mass))*GaussRandom;
-	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP)/mass;
+	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP,TrapStrength,A)/mass;
 	*position = *position + 0.5*dt*(*velocity);
 
 	*time += dt;
 	double NewCP = *CP + RandVel*dt;
-	double WorkStep = CalcWork(*position,*CP,NewCP);
+	double WorkStep = CalcWork(*position,*CP,NewCP,TrapStrength,A);
 
 	*CP = NewCP;
 
 	GaussRandom = d(gen);
 
 	*position = *position + 0.5*dt*(*velocity);
-	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP)/mass;
+	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP,TrapStrength,A)/mass;
 	*velocity = sqrt(DampingVal)*(*velocity) + sqrt((1-DampingVal)/(beta*mass))*GaussRandom;
 
 	return WorkStep;
 }
 
-void ConstantLangevinEquil(double * time, double * position, double * velocity, double * CP, double RandVel){
+void ConstantLangevinEquil(double * time, double * position, double * velocity, double * CP, double RandVel, double dt, double mass, double beta, double DampingVal, double TrapStrength, double A){
 
 	GaussRandom = d(gen);
 
 	*velocity = sqrt(DampingVal)*(*velocity) + sqrt((1-DampingVal)/(beta*mass))*GaussRandom;
-	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP)/mass;
+	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP,TrapStrength,A)/mass;
 	*position = *position + 0.5*dt*(*velocity);
 
 	*CP += RandVel*dt;
@@ -312,20 +334,20 @@ void ConstantLangevinEquil(double * time, double * position, double * velocity, 
 	GaussRandom = d(gen);
 
 	*position = *position + 0.5*dt*(*velocity);
-	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP)/mass;
+	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP,TrapStrength,A)/mass;
 	*velocity = sqrt(DampingVal)*(*velocity) + sqrt((1-DampingVal)/(beta*mass))*GaussRandom;
 
 }
 
 
-double ForceParticleSin(double position, double CP){
+double ForceParticleSin(double position, double CP, double TrapStrength, double A){
 
 	double Force;
 	Force = -TrapStrength*(position - CP) + A*sin(position);
 	return Force;
 }
 
-double CalcWork(double position, double CPOld, double CPNew){
+double CalcWork(double position, double CPOld, double CPNew, double TrapStrength, double A){
 
 	double EnergyBefore;
 	double EnergyAfter;
