@@ -119,9 +119,9 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 			OptVel_Realization[p] = OptVel_Realization[p]/Normalization;
 		}
 
-		//ProtocolName = "Protocols/Protocol_T" + std::to_string(ProtDuration) + "_" + std::to_string(k) + "_CP314.dat";
+		ProtocolName = "Protocols/New_Protocol_A0_T" + std::to_string(ProtDuration) + "_" + std::to_string(k) + "_CP314.dat";
 
-		//WriteRandomProtocol(ProtocolName,OptVel_Realization,CPVals_Realization,ProtocolLength);
+		WriteRandomProtocol(ProtocolName,OptVel_Realization,CPVals_Realization,ProtocolLength);
 
 		
 		for(int j = 0 ; j < InnerIterations ; j++){

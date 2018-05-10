@@ -29,7 +29,7 @@ int main(){
 	CPVals = new double [PeriodLength];
 	Friction = new double [PeriodLength];
 
-	int OuterIterations = 5000;
+	int OuterIterations = 20;//5000;
 	int InnerIterations = 1;
 	//double VelVar = 1;
 	double VelVar;
@@ -38,10 +38,13 @@ int main(){
 
 	cout << "Velocity Variance --> " << std::to_string(VelVar) << "\n";
 
-	double ProtocolDuration [] = {0.25,0.5,1,2,4,8,16,32,64,128,256,512};//,1024};//,2048};
+	//double ProtocolDuration [] = {0.25,0.5,1,2,4,8,16,32,64,128,256,512};//,1024};//,2048};
 	//double ProtocolDuration [] = {1,4,16};
-	int NumDurations = 12;//11;//12;
+	//int NumDurations = 12;//11;//12;
 	//int NumDurations = 3;
+
+	double ProtocolDuration [] = {1};
+	int NumDurations = 1;
 
 	double MeanVel;
 
