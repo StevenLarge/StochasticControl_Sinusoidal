@@ -77,9 +77,11 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 
 		Distance = RandVel*ProtDuration;
 		//ImageNumber = int(Distance/MeanDistance);
-		ImageNumber = int(Distance/(2*3.14159));
+		//ImageNumber = int(Distance/(2*3.14159));
+		ImageNumber = int(Distance/(2.0));
 		//CompleteImage = fmod(Distance,MeanDistance);
-		CompleteImage = fmod(Distance,(2*3.14159));
+		//CompleteImage = fmod(Distance,(2*3.14159));
+		CompleteImage = fmod(Distance,2.0);
 
 		MINVAL = 9999;
 		
@@ -119,9 +121,9 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 			OptVel_Realization[p] = OptVel_Realization[p]/Normalization;
 		}
 
-		ProtocolName = "Protocols/New_Protocol_A0_T" + std::to_string(ProtDuration) + "_" + std::to_string(k) + "_CP314.dat";
+		//ProtocolName = "Protocols/New_Protocol_A0_T" + std::to_string(ProtDuration) + "_" + std::to_string(k) + "_CP314.dat";
 
-		WriteRandomProtocol(ProtocolName,OptVel_Realization,CPVals_Realization,ProtocolLength);
+		//WriteRandomProtocol(ProtocolName,OptVel_Realization,CPVals_Realization,ProtocolLength);
 
 		
 		for(int j = 0 ; j < InnerIterations ; j++){
@@ -232,7 +234,7 @@ double ConstantDriver(double ProtDuration,int OuterIterations,int InnerIteration
 	double RandVel;
 
 	double WorkAcc = 0.0;
-	double Equilibration = 100;
+	double Equilibration = 500;
 
 	double TrapStrength;
 	double DampingVal;
@@ -343,7 +345,7 @@ void ConstantLangevinEquil(double * time, double * position, double * velocity, 
 double ForceParticleSin(double position, double CP, double TrapStrength, double A){
 
 	double Force;
-	Force = -TrapStrength*(position - CP) + A*sin(position);
+	Force = -TrapStrength*(position - CP) + A*sin(3.14159*position);
 	return Force;
 }
 
@@ -353,8 +355,8 @@ double CalcWork(double position, double CPOld, double CPNew, double TrapStrength
 	double EnergyAfter;
 	double Work;
 
-	EnergyBefore = 0.5*TrapStrength*(position - CPOld)*(position - CPOld) - A*cos(position);
-	EnergyAfter = 0.5*TrapStrength*(position - CPNew)*(position - CPNew) - A*cos(position);
+	EnergyBefore = 0.5*TrapStrength*(position - CPOld)*(position - CPOld) - A*cos(3.14159*position);
+	EnergyAfter = 0.5*TrapStrength*(position - CPNew)*(position - CPNew) - A*cos(3.14159*position);
 
 	Work = EnergyAfter - EnergyBefore;
 
