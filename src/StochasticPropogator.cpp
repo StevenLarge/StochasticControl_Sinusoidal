@@ -112,7 +112,7 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 		TimeAcc = 0.0;
 
 		for(int p = 0 ; p < ProtocolLength ; p ++){
-			TimeAcc += 0.01/OptVel_Realization[p];
+			TimeAcc += 0.005/OptVel_Realization[p];
 		}
 
 		Normalization = double(ProtDuration)/TimeAcc;
