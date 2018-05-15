@@ -43,5 +43,5 @@ clean:
 	rm -f $(SDIR)/$(ODIR)/*.o
 
 clean_ex:
-	rm *.exe
+	rm -f *.exe
 

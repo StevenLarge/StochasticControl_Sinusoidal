@@ -68,6 +68,8 @@ int main(){
 		WorkArray[k] = Driver(ProtocolDuration[k],CPDist,OuterIterations,InnerIterations,VelVar,MeanVel,OptVel,CPVals,PeriodLength); 	
 		//WorkArray[k] = ConstantDriver(ProtocolDuration[k],OuterIterations,InnerIterations,MeanVel,VelVar); 					//Driver for a constant velocity protocol
 
+		cout << "Time --> " << std::to_string(ProtocolDuration[k]) << "\tWork --> " << std::to_string(WorkArray[k]) << "\n";
+
 		cout << "\t\t-----\n";
 
 	}
