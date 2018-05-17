@@ -47,12 +47,12 @@ set label 5 "32" at screen 0.8075,0.9250 center font "Times-New-Roman,16"
 #set label 12 "1" at screen 0.150,0.670 left font "Times-New-Roman, 13"
 #set label 13 "1/4" at screen 0.150,0.630 left font "Times-New-Roman, 13"
 
-set object circle at screen 0.247,0.800 size scr 0.001 fc rgb "black" fs transparent solid 1.0 noborder
-set label 19 "⟨δλ^2⟩^*=" at screen 0.260,0.775 center font "Times-New-Roman, 13"  
-set label 110 "16" at screen 0.315,0.775 center font "Times-New-Roman, 12" textcolor rgb "red"
-set label 111 "4" at screen 0.315,0.640 center font "Times-New-Roman, 12" textcolor rgb "green"
-set label 112 "1" at screen 0.315,0.520 center font "Times-New-Roman, 12" textcolor rgb "black"
-set label 113 "1/4" at screen 0.310,0.400 center font "Times-New-Roman, 12" textcolor rgb "purple" 
+#set object circle at screen 0.247,0.800 size scr 0.001 fc rgb "black" fs transparent solid 1.0 noborder
+#set label 19 "⟨δλ^2⟩^*=" at screen 0.260,0.775 center font "Times-New-Roman, 13"  
+#set label 110 "16" at screen 0.315,0.775 center font "Times-New-Roman, 12" textcolor rgb "red"
+#set label 111 "4" at screen 0.315,0.640 center font "Times-New-Roman, 12" textcolor rgb "green"
+#set label 112 "1" at screen 0.315,0.520 center font "Times-New-Roman, 12" textcolor rgb "black"
+#set label 113 "1/4" at screen 0.310,0.400 center font "Times-New-Roman, 12" textcolor rgb "purple" 
 
 #set arrow from screen 0.120,0.750 to screen 0.140,0.750 nohead lw 3.0 lc rgb "red" 
 #set arrow from screen 0.120,0.710 to screen 0.140,0.710 nohead lw 3.0 lc rgb "green"
@@ -66,13 +66,12 @@ set label 113 "1/4" at screen 0.310,0.400 center font "Times-New-Roman, 12" text
 set multiplot layout 1,3 rowsfirst
 
 @LMARGIN
-#set xrange[0.7:3000]
-#set yrange[30:30000]
-#set yrange[30:100000]
-#set xtics format ""
-#set ytics format ""
-#set xtics (0.1 1, 0.3 1, 0.5 1, 0.7 1, 0.9 1, 1 0, 3 1, 5 1, 7 1, 9 1, "10^1" 10 0, 30 1, 50 1, 70 1, 90 1, 100 0, 300 1, 500 1, 700 1, 900 1, "10^3" 1000 0, 3000 1, 5000 1, 7000 1, 9000 1,"10^4" 10000 0)
-#set ytics (0.1 1, 0.3 1, 0.5 1, 0.7 1, 0.9 1, "10^0" 1 0, 3 1, 5 1, 7 1, 9 1, "10^1" 10 0, 30 1, 50 1, 70 1, 90 1, "10^2" 100 0, 300 1, 500 1, 700 1, 900 1, "10^3" 1000 0, 3000 1, 5000 1, 7000 1, 9000 1,"10^4" 10000 0, 30000 1, 50000 1, 70000 1, 90000 1,100000 0)
+set xrange[0.01:3000]
+set yrange[1:100000]
+set xtics format ""
+set ytics format ""
+set xtics (0.1 1, 0.3 1, 0.5 1, 0.7 1, 0.9 1, 1 0, 3 1, 5 1, 7 1, 9 1, "10^1" 10 0, 30 1, 50 1, 70 1, 90 1, 100 0, 300 1, 500 1, 700 1, 900 1, "10^3" 1000 0, 3000 1, 5000 1, 7000 1, 9000 1,"10^4" 10000 0)
+set ytics (0.1 1, 0.3 1, 0.5 1, 0.7 1, 0.9 1, "10^0" 1 0, 3 1, 5 1, 7 1, 9 1, "10^1" 10 0, 30 1, 50 1, 70 1, 90 1, "10^2" 100 0, 300 1, 500 1, 700 1, 900 1, "10^3" 1000 0, 3000 1, 5000 1, 7000 1, 9000 1,"10^4" 10000 0, 30000 1, 50000 1, 70000 1, 90000 1,100000 0)
 plot "ConstantVelocityEnsemble_Dec2017/NonDimData/ConstVelTheory_L1_025_S4_NoDim.dat" with line lw 2.5 lc rgb "#70D53E4F", \
 	"ConstantVelocityEnsemble_Dec2017/NonDimData/ConstVelTheory_L1_1_S4_NoDim.dat" with line lw 2.5 lc rgb "#70FC8D59", \
 	"ConstantVelocityEnsemble_Dec2017/NonDimData/ConstVelTheory_L1_4_S4_NoDim.dat" with line lw 2.5 lc rgb "#7099D594", \
@@ -84,13 +83,12 @@ plot "ConstantVelocityEnsemble_Dec2017/NonDimData/ConstVelTheory_L1_025_S4_NoDim
 
 
 @MMARGIN
-#set xrange[0.7:3000]
-#set yrange[30:30000]
-#set yrange[30:100000]
-#set xtics format ""
-#set ytics format ""
-#set xtics (0.1 1, 0.3 1, 0.5 1, 0.7 1, 0.9 1, 1 0, 3 1, 5 1, 7 1, 9 1, 10 0, 30 1, 50 1, 70 1, 90 1, 100 0, 300 1, 500 1, 700 1, 900 1, 1000 0, 3000 1, 5000 1, 7000 1, 9000 1, 10000 0)
-#set ytics (0.1 1, 0.3 1, 0.5 1, 0.7 1, 0.9 1, 1 0, 3 1, 5 1, 7 1, 9 1, 10 0, 30 1, 50 1, 70 1, 90 1, 100 0, 300 1, 500 1, 700 1, 900 1, 1000 0, 3000 1, 5000 1, 7000 1, 9000 1, 10000 0, 30000 1, 50000 1, 70000 1, 90000 1,100000 0)
+set xrange[0.01:3000]
+set yrange[1:100000]
+set xtics format ""
+set ytics format ""
+set xtics (0.1 1, 0.3 1, 0.5 1, 0.7 1, 0.9 1, 1 0, 3 1, 5 1, 7 1, 9 1, 10 0, 30 1, 50 1, 70 1, 90 1, 100 0, 300 1, 500 1, 700 1, 900 1, 1000 0, 3000 1, 5000 1, 7000 1, 9000 1, 10000 0)
+set ytics (0.1 1, 0.3 1, 0.5 1, 0.7 1, 0.9 1, 1 0, 3 1, 5 1, 7 1, 9 1, 10 0, 30 1, 50 1, 70 1, 90 1, 100 0, 300 1, 500 1, 700 1, 900 1, 1000 0, 3000 1, 5000 1, 7000 1, 9000 1, 10000 0, 30000 1, 50000 1, 70000 1, 90000 1,100000 0)
 plot "ConstantVelocityEnsemble_Dec2017/NonDimData/ConstVelTheory_L4_025_S4_NoDim.dat" with line lw 2.5 lc rgb "#70D53E4F", \
 	"ConstantVelocityEnsemble_Dec2017/NonDimData/ConstVelTheory_L4_1_S4_NoDim.dat" with line lw 2.5 lc rgb "#70FC8D59", \
 	"ConstantVelocityEnsemble_Dec2017/NonDimData/ConstVelTheory_L4_4_S4_NoDim.dat" with line lw 2.5 lc rgb "#7099D594", \
@@ -103,13 +101,12 @@ plot "ConstantVelocityEnsemble_Dec2017/NonDimData/ConstVelTheory_L4_025_S4_NoDim
 
 
 @RMARGIN
-#set xrange[0.7:3000]
-#set yrange[30:30000]
-#set yrange[30:100000]
-#set xtics format ""
-#set ytics format ""
-#set xtics (0.1 1, 0.3 1, 0.5 1, 0.7 1, 0.9 1, 1 0, 3 1, 5 1, 7 1, 9 1, 10 0, 30 1, 50 1, 70 1, 90 1, 100 0, 300 1, 500 1, 700 1, 900 1, 1000 0, 3000 1, 5000 1, 7000 1, 9000 1, 10000 0)
-#set ytics (0.1 1, 0.3 1, 0.5 1, 0.7 1, 0.9 1, 1 0, 3 1, 5 1, 7 1, 9 1, 10 0, 30 1, 50 1, 70 1, 90 1, 100 0, 300 1, 500 1, 700 1, 900 1, 1000 0, 3000 1, 5000 1, 7000 1, 9000 1, 10000 0, 30000 1, 50000 1, 70000 1, 90000 1,100000 0)
+set xrange[0.01:3000]
+set yrange[1:100000]
+set xtics format ""
+set ytics format ""
+set xtics (0.1 1, 0.3 1, 0.5 1, 0.7 1, 0.9 1, 1 0, 3 1, 5 1, 7 1, 9 1, 10 0, 30 1, 50 1, 70 1, 90 1, 100 0, 300 1, 500 1, 700 1, 900 1, 1000 0, 3000 1, 5000 1, 7000 1, 9000 1, 10000 0)
+set ytics (0.1 1, 0.3 1, 0.5 1, 0.7 1, 0.9 1, 1 0, 3 1, 5 1, 7 1, 9 1, 10 0, 30 1, 50 1, 70 1, 90 1, 100 0, 300 1, 500 1, 700 1, 900 1, 1000 0, 3000 1, 5000 1, 7000 1, 9000 1, 10000 0, 30000 1, 50000 1, 70000 1, 90000 1,100000 0)
 plot "ConstantVelocityEnsemble_Dec2017/NonDimData/ConstVelTheory_L16_025_S4_NoDim.dat" with line lw 2.5 lc rgb "#70D53E4F", \
 	"ConstantVelocityEnsemble_Dec2017/NonDimData/ConstVelTheory_L16_1_S4_NoDim.dat" with line lw 2.5 lc rgb "#70FC8D59", \
 	"ConstantVelocityEnsemble_Dec2017/NonDimData/ConstVelTheory_L16_4_S4_NoDim.dat" with line lw 2.5 lc rgb "#7099D594", \
