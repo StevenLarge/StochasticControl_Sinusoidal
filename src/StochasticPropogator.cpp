@@ -44,9 +44,12 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 	double ViscoFric = -log(DampingVal)/dt;
 
 	double RandVel;
+	double MeanProtoVel;
 
 	double WorkAcc = 0.0;
-	double Equilibration = 500;
+	double Equilibration = 500/dt;
+	int EquilCounter;
+	int BreakCondition;
 
 	double time;
 	double position;
@@ -121,6 +124,17 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 			OptVel_Realization[p] = OptVel_Realization[p]/Normalization;
 		}
 
+		MeanProtoVel = 0;
+
+		for(int r = 0 ; r < ProtocolLength ; r++){
+			MeanProtoVel += OptVel_Realization[r];
+		}
+
+		MeanProtoVel = MeanProtoVel/double(ProtocolLength);
+
+		//cout << "MeanVel    --> " << std::to_string(MeanProtoVel) << "\n";
+		//cout << "InitialVel --> " << std::to_string(OptVel_Realization[0]) << "\n";
+
 		//ProtocolName = "Protocols/New_Protocol_A0_T" + std::to_string(ProtDuration) + "_" + std::to_string(k) + "_CP314.dat";
 
 		//WriteRandomProtocol(ProtocolName,OptVel_Realization,CPVals_Realization,ProtocolLength);
@@ -133,11 +147,24 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 			velocity = 0;
 			CP = 0;
 
+			//EquilCounter = 0;
+			//BreakCondition = 0;
+
+			//LangevinEquil_NESS, runs the optimal protocol for a long time before beginning work calculations, this should help with any boundary condition artifacts
+
 			while(time < Equilibration){
 				//ConstantLangevinEquil(timePointer,positionPointer,velocityPointer,CPPointer,RandVel);
-				LangevinEquil(timePointer,positionPointer,velocityPointer,CPPointer,OptVel_Realization,CPVals_Realization,dt,A,beta,DampingVal,mass,TrapStrength);
+				//LangevinEquil(timePointer,positionPointer,velocityPointer,CPPointer,OptVel_Realization,CPVals_Realization,dt,A,beta,DampingVal,mass,TrapStrength);
+				LangevinEquil_MeanVel(timePointer,positionPointer,velocityPointer,CPPointer,MeanProtoVel,CPVals_Realization,dt,A,beta,DampingVal,mass,TrapStrength);
+				//LangevinEquil_NESS(timePointer,positionPointer,velocityPointer,CPPointer,OptVel_Realization,CPVals_Realization,ProtocolLength,dt,A,beta,DampingVal,mass,TrapStrength,EquilCounter);
+				//EquilCounter += 1;
+				//if(EquilCounter > Equilibration && EquilCounter%PeriodLength == 0){
+					//BreakCondition = 1;
+				//}
 			}
 
+			//position = position - CP; 				//Set initial position relative to CP = 0
+			//CP = 0;
 			time = 0;
 
 			while(time < ProtDuration){
@@ -221,6 +248,55 @@ void LangevinEquil(double * time, double * position, double * velocity, double *
 	*position = *position - (NewCP - OldCP); 		//Reset the position so that after equilibration the system average position
 }
 
+
+void LangevinEquil_MeanVel(double * time, double * position, double * velocity, double * CP, double MeanVel, double * CPVals_Realization, double dt, double A, double beta, double DampingVal, double mass, double TrapStrength){
+
+	GaussRandom = d(gen);
+
+	*velocity = sqrt(DampingVal)*(*velocity) + sqrt((1-DampingVal)/(beta*mass))*GaussRandom;
+	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP,TrapStrength,A)/mass;
+	*position = *position + 0.5*dt*(*velocity);
+
+	*time += dt;
+	double OldCP = *CP;
+	double NewCP = *CP + MeanVel*dt;
+	*CP = NewCP;
+
+	GaussRandom = d(gen);
+
+	*position = *position + 0.5*dt*(*velocity);
+	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP,TrapStrength,A)/mass;
+	*velocity = sqrt(DampingVal)*(*velocity) + sqrt((1-DampingVal)/(beta*mass))*GaussRandom;
+
+	*CP = OldCP;
+	*position = *position - (NewCP - OldCP); 		//Reset the position so that after equilibration the system average position
+}
+
+
+
+void LangevinEquil_NESS(double * time, double * position, double * velocity, double * CP, double * OptVel_Realization, double * CPVals_Realization, int ArrayLength, double dt, double A, double beta, double DampingVal, double mass, double TrapStrength, int Counter){
+
+	GaussRandom = d(gen);
+
+	*velocity = sqrt(DampingVal)*(*velocity) + sqrt((1-DampingVal)/(beta*mass))*GaussRandom;
+	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP,TrapStrength,A)/mass;
+	*position = *position + 0.5*dt*(*velocity);
+
+	*time += dt;
+	double OldCP = *CP;
+	double NewCP = *CP + OptVel_Realization[FindTargetIndex(*CP,CPVals_Realization,ArrayLength)]*dt;
+	//double NewCP = *CP + OptVel_Realization[Counter%ArrayLength]*dt;
+	*CP = NewCP;
+
+	GaussRandom = d(gen);
+
+	*position = *position + 0.5*dt*(*velocity);
+	*velocity = *velocity + 0.5*dt*ForceParticleSin(*position,*CP,TrapStrength,A)/mass;
+	*velocity = sqrt(DampingVal)*(*velocity) + sqrt((1-DampingVal)/(beta*mass))*GaussRandom;
+
+	//*CP = OldCP;
+	//*position = *position - (NewCP - OldCP); 		//Reset the position so that after equilibration the system average position
+}
 
 
 /* Constant velocity protocol propogation routines */

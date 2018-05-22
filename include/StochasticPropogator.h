@@ -6,6 +6,8 @@ double Driver(double ProtDuration, double MeanDistance, int InnerIter, int Outer
 
 double Langevin(double * time, double * position, double * velocity, double * CP, double * OptVel_Realization, double * CPVals_Realization, int ArrayLength, double dt, double A, double beta, double DampingVal, double mass, double TrapStrength);
 void LangevinEquil(double * time, double * position, double * velocity, double * CP, double * OptVel_Realization, double * CPVals_Realization, double dt, double A, double beta, double DampingVal, double mass, double TrapStrength);
+void LangevinEquil_NESS(double * time, double * position, double * velocity, double * CP, double * OptVel_Realization, double * CPVals_Realization, int ArrayLength, double dt, double A, double beta, double DampingVal, double mass, double TrapStrength, int Counter);
+void LangevinEquil_MeanVel(double * time, double * position, double * velocity, double * CP, double MeanVel, double * CPVals_Realization, double dt, double A, double beta, double DampingVal, double mass, double TrapStrength);
 double ForceParticleSin(double position, double CP, double TrapStrength, double A);
 double CalcWork(double position, double CPOld, double CPNew, double TrapStrength, double A);
 
