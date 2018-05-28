@@ -16,8 +16,29 @@ using namespace std;
 
 int main(){
 
-	string WriteName = "WorkData/WorkTrend.dat";
+	string WriteName = "WorkData/WorkTrend_Eq500_Iter5000_CP4_A0.dat";
 	string WriteNameFriction = "WorkData/Friction.dat";
+
+	std::ifstream ReadFile;
+
+	ReadFile.open("Parameters.dat");
+
+	double Dummy;
+
+	ReadFile >> Dummy;
+	ReadFile >> Dummy;
+	ReadFile >> Dummy;
+	ReadFile >> Dummy;
+	ReadFile >> Dummy;
+	ReadFile >> Dummy;
+	ReadFile >> Dummy;
+	ReadFile >> Dummy;
+
+	ReadFile >> WriteName;
+
+	ReadFile.close();
+
+	//cout << "WriteName --> " << WriteName << "\n\n";
 
 	double dX = 0.005;
 	//int PeriodLength = int(2.0*3.14159/dX);
@@ -30,7 +51,7 @@ int main(){
 	CPVals = new double [PeriodLength];
 	Friction = new double [PeriodLength];
 
-	int OuterIterations = 100;// 20000;
+	int OuterIterations = 4000;// 20000;
 	int InnerIterations = 1;
 	//double VelVar = 1;
 	double VelVar;
@@ -40,9 +61,12 @@ int main(){
 	cout << "Velocity Variance --> " << std::to_string(VelVar) << "\n";
 
 	//double ProtocolDuration [] = {0.5,1,2,4,8,16,32,64,128,256,512};//,1024};//,2048};
-	double ProtocolDuration [] = {0.031,0.063,0.125,0.25};
+	//double ProtocolDuration [] = {0.031,0.063,0.125,0.25,0.5};
+	//double ProtocolDuration [] = {1.0,2.0};
+	double ProtocolDuration [] = {4.0,8.0};
 	//double ProtocolDuration [] = {1,4,16};
-	int NumDurations = 4;
+	//int NumDurations = 5;
+	int NumDurations = 2;
 	//int NumDurations = 11;//11;//12;
 	//int NumDurations = 3;
 
@@ -61,7 +85,7 @@ int main(){
 
 	ZulkowskiFriction(OptVel,CPVals,Friction,dX,PeriodLength); 				//Calculate the friction over a period and the optimal velocity for a 1 second protocol
 
-	WriteFrictionData(WriteNameFriction,CPVals,Friction,OptVel,PeriodLength);
+	//WriteFrictionData(WriteNameFriction,CPVals,Friction,OptVel,PeriodLength);
 
 	for(int k = 0 ; k < NumDurations ; k++){
 
