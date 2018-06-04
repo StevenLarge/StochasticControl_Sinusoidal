@@ -47,7 +47,7 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 	double MeanProtoVel;
 
 	double WorkAcc = 0.0;
-	double Equilibration = 200;
+	double Equilibration = 500;
 	int EquilCounter;
 	int BreakCondition;
 

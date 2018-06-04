@@ -51,7 +51,7 @@ int main(){
 	CPVals = new double [PeriodLength];
 	Friction = new double [PeriodLength];
 
-	int OuterIterations = 4000;// 20000;
+	int OuterIterations = 20000;// 20000;
 	int InnerIterations = 1;
 	//double VelVar = 1;
 	double VelVar;
@@ -63,10 +63,10 @@ int main(){
 	//double ProtocolDuration [] = {0.5,1,2,4,8,16,32,64,128,256,512};//,1024};//,2048};
 	//double ProtocolDuration [] = {0.031,0.063,0.125,0.25,0.5};
 	//double ProtocolDuration [] = {1.0,2.0};
-	double ProtocolDuration [] = {4.0,8.0};
+	double ProtocolDuration [] = {0.5};//,8.0};
 	//double ProtocolDuration [] = {1,4,16};
 	//int NumDurations = 5;
-	int NumDurations = 2;
+	int NumDurations = 1;
 	//int NumDurations = 11;//11;//12;
 	//int NumDurations = 3;
 
@@ -98,17 +98,19 @@ int main(){
 
 	}
 
+	cout << "Work --> " << std::to_string(WorkArray[0]) << "\n\n";
+
 	//WriteWorkData(WriteName,ProtocolDuration,WorkArray,NumDurations);
 
 
 	/* ----- WriteWorkData Routine ----- */
 
-	std::ofstream WriteFile;
-	WriteFile.open(WriteName);
-	for(int k = 0 ; k < NumberDurations ; k ++){
-		WriteFile << std::to_string(ProtocolDuration[k]) << "\t" << std::to_string(WorkVals[k]) << "\n";
-	}
-	WriteFile.close();
+	//std::ofstream WriteFile;
+	//WriteFile.open(WriteName);
+	//for(int k = 0 ; k < NumberDurations ; k ++){
+	//WriteFile << std::to_string(ProtocolDuration[k]) << "\t" << std::to_string(WorkVals[k]) << "\n";
+	//}
+	//WriteFile.close();
 
 	/* ----- --------------------- ----- */
 

@@ -47,7 +47,7 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 	double MeanProtoVel;
 
 	double WorkAcc = 0.0;
-	double Equilibration = 500/dt;
+	double Equilibration = 500;
 	int EquilCounter;
 	int BreakCondition;
 
@@ -106,6 +106,10 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 		OptVel_Realization = new double [ProtocolLength];
 		CPVals_Realization = new double [ProtocolLength];
 
+		//double * CPTrajectory;
+		//CPTrajectory = new double [10000000];
+		//int CP_Counter = 0;
+
 		for(int p = 0 ; p < ProtocolLength ; p ++){
 			OptVel_Realization[p] = OptVel[p%PeriodLength];
 			CPVals_Realization[p] = CPVals[p%PeriodLength] + (int(p)/int(PeriodLength))*CPVals[PeriodLength-1];
@@ -147,32 +151,46 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 			velocity = 0;
 			CP = 0;
 
-			//EquilCounter = 0;
-			//BreakCondition = 0;
+			EquilCounter = 0;
+			BreakCondition = 0;
 
 			//LangevinEquil_NESS, runs the optimal protocol for a long time before beginning work calculations, this should help with any boundary condition artifacts
 
 			while(time < Equilibration){
 				//ConstantLangevinEquil(timePointer,positionPointer,velocityPointer,CPPointer,RandVel);
 				//LangevinEquil(timePointer,positionPointer,velocityPointer,CPPointer,OptVel_Realization,CPVals_Realization,dt,A,beta,DampingVal,mass,TrapStrength);
-				LangevinEquil_MeanVel(timePointer,positionPointer,velocityPointer,CPPointer,MeanProtoVel,CPVals_Realization,dt,A,beta,DampingVal,mass,TrapStrength);
-				//LangevinEquil_NESS(timePointer,positionPointer,velocityPointer,CPPointer,OptVel_Realization,CPVals_Realization,ProtocolLength,dt,A,beta,DampingVal,mass,TrapStrength,EquilCounter);
-				//EquilCounter += 1;
-				//if(EquilCounter > Equilibration && EquilCounter%PeriodLength == 0){
-					//BreakCondition = 1;
-				//}
+				//LangevinEquil_MeanVel(timePointer,positionPointer,velocityPointer,CPPointer,MeanProtoVel,CPVals_Realization,dt,A,beta,DampingVal,mass,TrapStrength);
+				LangevinEquil_NESS(timePointer,positionPointer,velocityPointer,CPPointer,OptVel_Realization,CPVals_Realization,ProtocolLength,dt,A,beta,DampingVal,mass,TrapStrength,EquilCounter);
+				EquilCounter += 1;
+				if(EquilCounter > Equilibration && EquilCounter%PeriodLength == 0){
+					BreakCondition = 1;
+				}
+				//CPTrajectory[CP_Counter] = CP;
+				//CP_Counter += 1;
+
 			}
 
-			//position = position - CP; 				//Set initial position relative to CP = 0
-			//CP = 0;
+			position = position - CP; 				//Set initial position relative to CP = 0
+			CP = 0;
 			time = 0;
 
 			while(time < ProtDuration){
 				//WorkAcc += ConstantLangevin(timePointer,positionPointer,velocityPointer,CPPointer,RandVel);
 				WorkAcc += Langevin(timePointer,positionPointer,velocityPointer,CPPointer,OptVel_Realization,CPVals_Realization,ProtocolLength,dt,A,beta,DampingVal,mass,TrapStrength);
+				//CPTrajectory[CP_Counter] = CP;
+				//CP_Counter += 1;
 			}
 
 		}
+
+		//std::ofstream WriteFile;
+		//WriteFile.open("CPTraj.dat");
+		//for(int c = 0 ; c < 100000 ; c++){
+		//	WriteFile << std::to_string(CPTrajectory[c]) << "\n";
+		//}
+		//WriteFile.close();
+
+		//delete CPTrajectory;
 
 		WorkAcc = WorkAcc/double(InnerIterations);
 
@@ -201,6 +219,27 @@ int FindTargetIndex(double CP, double * CPVals, int ArrayLength){
 
 	return Target;
 }
+
+int FindTargetIndex_Modular(double CP, double * CPVals, int ArrayLength){
+
+	double MINVAL = 9999;
+	double TestDiff;
+	int Target;
+	double Image;
+
+	for(int k = 0 ; k < ArrayLength ; k++){
+		Image = fmod(CP,2.0);
+		//cout << std::to_string(Image) << "\n";
+		TestDiff = abs(Image - CPVals[k]);
+		if(TestDiff < MINVAL){
+			Target = k;
+			MINVAL = TestDiff;
+		}
+	}
+
+	return Target;
+}
+
 
 double Langevin(double * time, double * position, double * velocity, double * CP, double * OptVel_Realization, double * CPVals_Realization, int ArrayLength, double dt, double A, double beta, double DampingVal, double mass, double TrapStrength){
 
@@ -284,7 +323,7 @@ void LangevinEquil_NESS(double * time, double * position, double * velocity, dou
 
 	*time += dt;
 	double OldCP = *CP;
-	double NewCP = *CP + OptVel_Realization[FindTargetIndex(*CP,CPVals_Realization,ArrayLength)]*dt;
+	double NewCP = *CP + OptVel_Realization[FindTargetIndex_Modular(*CP,CPVals_Realization,ArrayLength)]*dt;
 	//double NewCP = *CP + OptVel_Realization[Counter%ArrayLength]*dt;
 	*CP = NewCP;
 
