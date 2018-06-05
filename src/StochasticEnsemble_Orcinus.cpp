@@ -21,7 +21,7 @@ int main(){
 
 	double dX = 0.005;
 	//int PeriodLength = int(2.0*3.14159/dX);
-	int PeriodLength = int(2.0/dX);
+	int PeriodLength = int(1.0/dX);
 
 	double * OptVel;
 	double * CPVals;

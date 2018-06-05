@@ -81,10 +81,10 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 		Distance = RandVel*ProtDuration;
 		//ImageNumber = int(Distance/MeanDistance);
 		//ImageNumber = int(Distance/(2*3.14159));
-		ImageNumber = int(Distance/(2.0));
+		ImageNumber = int(Distance/(1.0));
 		//CompleteImage = fmod(Distance,MeanDistance);
 		//CompleteImage = fmod(Distance,(2*3.14159));
-		CompleteImage = fmod(Distance,2.0);
+		CompleteImage = fmod(Distance,1.0);
 
 		MINVAL = 9999;
 		
@@ -228,7 +228,7 @@ int FindTargetIndex_Modular(double CP, double * CPVals, int ArrayLength){
 	double Image;
 
 	for(int k = 0 ; k < ArrayLength ; k++){
-		Image = fmod(CP,2.0);
+		Image = fmod(CP,1.0);
 		//cout << std::to_string(Image) << "\n";
 		TestDiff = abs(Image - CPVals[k]);
 		if(TestDiff < MINVAL){
@@ -460,7 +460,7 @@ void ConstantLangevinEquil(double * time, double * position, double * velocity, 
 double ForceParticleSin(double position, double CP, double TrapStrength, double A){
 
 	double Force;
-	Force = -TrapStrength*(position - CP) + A*sin(3.14159*position);
+	Force = -TrapStrength*(position - CP) + A*sin(2*3.14159*position);
 	return Force;
 }
 
@@ -470,8 +470,8 @@ double CalcWork(double position, double CPOld, double CPNew, double TrapStrength
 	double EnergyAfter;
 	double Work;
 
-	EnergyBefore = 0.5*TrapStrength*(position - CPOld)*(position - CPOld) - A*cos(3.14159*position);
-	EnergyAfter = 0.5*TrapStrength*(position - CPNew)*(position - CPNew) - A*cos(3.14159*position);
+	EnergyBefore = 0.5*TrapStrength*(position - CPOld)*(position - CPOld) - A*cos(2*3.14159*position);
+	EnergyAfter = 0.5*TrapStrength*(position - CPNew)*(position - CPNew) - A*cos(2*3.14159*position);
 
 	Work = EnergyAfter - EnergyBefore;
 
