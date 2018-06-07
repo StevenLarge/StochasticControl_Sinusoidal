@@ -47,9 +47,11 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 	double MeanProtoVel;
 
 	double WorkAcc = 0.0;
-	double Equilibration = 500;
+	double Equilibration = 50/dt;
+	
 	int EquilCounter;
 	int BreakCondition;
+	int MaxCounter = 100000;
 
 	double time;
 	double position;
@@ -74,6 +76,8 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 
 	string ProtocolName;
 
+	string Filename;
+
 	for(int k = 0 ; k < OuterIterations ; k++){
 
 		RandVel = abs(sqrt(VelVar)*d(gen) + MeanVel);
@@ -81,10 +85,10 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 		Distance = RandVel*ProtDuration;
 		//ImageNumber = int(Distance/MeanDistance);
 		//ImageNumber = int(Distance/(2*3.14159));
-		ImageNumber = int(Distance/(2.0));
+		ImageNumber = int(Distance/(1.0));
 		//CompleteImage = fmod(Distance,MeanDistance);
 		//CompleteImage = fmod(Distance,(2*3.14159));
-		CompleteImage = fmod(Distance,2.0);
+		CompleteImage = fmod(Distance,1.0);
 
 		MINVAL = 9999;
 		
@@ -127,18 +131,46 @@ double Driver(double ProtDuration, double MeanDistance, int OuterIterations,int 
 		for(int j = 0 ; j < InnerIterations ; j++){
 
 			time = 0;
-			position = -ViscoFric*RandVel/TrapStrength;
+			position = 0;//-ViscoFric*RandVel/TrapStrength;
 			velocity = 0;
 			CP = 0;
 
-			while(time < Equilibration){
-				LangevinEquil(timePointer,positionPointer,velocityPointer,CPPointer,OptVel_Realization,CPVals_Realization,dt,A,beta,DampingVal,mass,TrapStrength);
+			BreakCondition = 0;
+			EquilCounter = 0;
+
+			//while(time < Equilibration){
+			while(BreakCondition == 0){
+				//LangevinEquil(timePointer,positionPointer,velocityPointer,CPPointer,OptVel_Realization,CPVals_Realization,dt,A,beta,DampingVal,mass,TrapStrength);
+				LangevinEquil_NESS(timePointer,positionPointer,velocityPointer,CPPointer,OptVel_Realization,CPVals_Realization,dt,A,beta,DampingVal,mass,TrapStrength,PeriodLength);
+				EquilCounter += 1;
+
+				//std::ofstream WriteFile;
+				//Filename = "TrajData/Traj_Equil_Vel" + std::to_string(MeanVel) + "_" + std::to_string(k) + ".dat";
+				//WriteFile.open(Filename,std::ios_base::app);
+				//WriteFile << std::to_string(time) << "\t" << std::to_string(CP) << "\t" << std::to_string(position) << "\n";
+				//WriteFile.close();
+
+				if(EquilCounter > Equilibration && EquilCounter%PeriodLength == 0){
+					BreakCondition = 1;
+				}
+				if(EquilCounter > MaxCounter){
+					BreakCondition = 1;
+					cout << "\t\t--- Equilibration Terminated: MaxCounter Limit Reached ---\n";
+				}
 			}
 
 			time = 0;
+			position = position - CP;
+			CP = 0;
 
 			while(time < ProtDuration){
 				WorkAcc += Langevin(timePointer,positionPointer,velocityPointer,CPPointer,OptVel_Realization,CPVals_Realization,ProtocolLength,dt,A,beta,DampingVal,mass,TrapStrength);
+			
+				//std::ofstream WriteFile;
+				//Filename = "TrajData/Traj_Dynamic_Vel" + std::to_string(MeanVel) + "_" + std::to_string(k) + ".dat";
+				//WriteFile.open(Filename,std::ios_base::app);
+				//WriteFile << std::to_string(time) << "\t" << std::to_string(CP) << "\t" << std::to_string(position) << "\n";
+				//WriteFile.close();
 			}
 
 		}
@@ -160,8 +192,12 @@ int FindTargetIndex(double CP, double * CPVals, int ArrayLength){
 	double TestDiff;
 	int Target;
 
+	double Image;
+
+	Image = fmod(CP,1.0);
+
 	for(int k = 0 ; k < ArrayLength ; k++){
-		TestDiff = abs(CP - CPVals[k]);
+		TestDiff = abs(Image - CPVals[k]);
 		if(TestDiff < MINVAL){
 			Target = k;
 			MINVAL = TestDiff;
@@ -243,7 +279,7 @@ void LangevinEquil_MeanVel(double * time, double * position, double * velocity, 
 
 
 
-void LangevinEquil_NESS(double * time, double * position, double * velocity, double * CP, double * OptVel_Realization, double * CPVals_Realization, int ArrayLength, double dt, double A, double beta, double DampingVal, double mass, double TrapStrength, int Counter){
+void LangevinEquil_NESS(double * time, double * position, double * velocity, double * CP, double * OptVel_Realization, double * CPVals_Realization, double dt, double A, double beta, double DampingVal, double mass, double TrapStrength, int ArrayLength){
 
 	GaussRandom = d(gen);
 
@@ -390,7 +426,7 @@ void ConstantLangevinEquil(double * time, double * position, double * velocity, 
 double ForceParticleSin(double position, double CP, double TrapStrength, double A){
 
 	double Force;
-	Force = -TrapStrength*(position - CP) + A*sin(3.14159*position);
+	Force = -TrapStrength*(position - CP) + A*sin(2.0*3.14159*position);
 	return Force;
 }
 
@@ -400,8 +436,8 @@ double CalcWork(double position, double CPOld, double CPNew, double TrapStrength
 	double EnergyAfter;
 	double Work;
 
-	EnergyBefore = 0.5*TrapStrength*(position - CPOld)*(position - CPOld) - A*cos(3.14159*position);
-	EnergyAfter = 0.5*TrapStrength*(position - CPNew)*(position - CPNew) - A*cos(3.14159*position);
+	EnergyBefore = 0.5*TrapStrength*(position - CPOld)*(position - CPOld) - A*cos(2.0*3.14159*position);
+	EnergyAfter = 0.5*TrapStrength*(position - CPNew)*(position - CPNew) - A*cos(2.0*3.14159*position);
 
 	Work = EnergyAfter - EnergyBefore;
 

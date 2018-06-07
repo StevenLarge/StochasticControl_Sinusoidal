@@ -10,7 +10,7 @@ LDIR = lib
 IDIR = include
 SDIR = src
 
-MAINFILE = $(SDIR)/StochasticEnsemble_Orcinus.cpp
+MAINFILE = $(SDIR)/StochasticEnsemble.cpp
 
 SOURCES = $(SDIR)/StochasticPropogator.cpp
 LIBRARIES = $(LDIR)/ReadWrite.cpp 

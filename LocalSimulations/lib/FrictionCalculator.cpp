@@ -140,7 +140,7 @@ double GeneralizedFriction(double CPVal, int Range, double XMin, double dX, doub
 double Energy(double position, double CP, double TrapStrength, double A){
 
 	double Energy;
-	Energy = 0.5*TrapStrength*(position - CP)*(position - CP) - A*cos(3.14159*position);
+	Energy = 0.5*TrapStrength*(position - CP)*(position - CP) - A*cos(2*3.14159*position);
 
 	return Energy;
 }
